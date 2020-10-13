@@ -5,13 +5,17 @@ import Spinner from "../spinner/";
 import ErrorMessage from "../errorMessage/";
 
 export default class RandomChar extends Component {
-  constructor() {
-    super();
+  gotServise = new gotServise();
+  state = { char: {}, loading: true, error: false };
+
+  componentDidMount() {
     this.updateChar();
+    this.timerId = setInterval(this.updateChar, 1500);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timerId);
   }
 
-  gotServise = new gotServise();
-  state = { char: {}, loading: true };
   onCharLoaded = (char) => {
     this.setState({ char, loading: false, error: false });
   };
@@ -22,15 +26,17 @@ export default class RandomChar extends Component {
       loading: false,
     });
   };
-  updateChar() {
+  updateChar = () => {
+    // console.log("update");
     const id = Math.floor(Math.random() * 140 + 25);
     // const id = 13000000;
     this.gotServise
       .getCharacter(id)
       .then(this.onCharLoaded)
       .catch(this.onError);
-  }
+  };
   render() {
+    console.log("render");
     const { char, loading, error } = this.state;
 
     const errorMessage = error ? <ErrorMessage /> : null;
