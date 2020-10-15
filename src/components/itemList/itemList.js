@@ -1,55 +1,42 @@
-import React, {Component} from 'react';
-import './itemList.css';
-import Spinner from '../spinner';
+import React, { useState, useEffect } from "react";
+import "./itemList.css";
+import Spinner from "../spinner";
+import PropTypes from "prop-types";
 
-export default class ItemList extends Component {
+function ItemList({ getData, onItemSelected, renderItem }) {
+  const [itemList, updateList] = useState([]);
 
-    state = {
-        itemList: null
-    }
+  useEffect(() => {
+    getData().then((data) => {
+      updateList(data);
+    });
+  }, [itemList]);
 
-    componentDidMount() {
-        const {getData} = this.props;
+  function renderItems(arr) {
+    return arr.map((item) => {
+      const { id } = item;
 
-        getData()
-            .then( (itemList) => {
-                this.setState({
-                    itemList
-                })
-            })
-    }
+      const label = renderItem(item);
 
-    renderItems(arr) {
-        return arr.map((item) => {
-            const {id} = item;
+      return (
+        <li
+          key={id}
+          className="list-group-item"
+          onClick={() => onItemSelected(id)}
+        >
+          {label}
+        </li>
+      );
+    });
+  }
 
-            const label = this.props.renderItem(item);
+  if (!itemList) {
+    return <Spinner />;
+  }
 
-            return (
-                <li 
-                    key={id}
-                    className="list-group-item"
-                    onClick={ () => this.props.onItemSelected(id)}>
-                    {label}
-                </li>
-            )
-        })
-    }
+  const items = renderItems(itemList);
 
-    render() {
-        const {itemList} = this.state;
-
-        if (!itemList) {
-            return <Spinner/>
-        }
-
-        const items = this.renderItems(itemList);
-
-
-        return (
-            <ul className="item-list list-group">
-                {items}
-            </ul>
-        );
-    }
+  return <ul className="item-list list-group">{items}</ul>;
 }
+
+export default ItemList;
